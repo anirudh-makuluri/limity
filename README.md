@@ -37,7 +37,7 @@ Developer-first rate limiting tool. Built for simplicity and performance.
 - `examples/django-app` - Django example
 
 ### Go
-- `apps/api` - Go backend with Upstash Redis
+- `apps/api` - Go API backend
 
 ## 🚀 Quick Start
 
@@ -111,9 +111,7 @@ Default: 100 requests per 60 seconds per IP.
 
 ## 🔌 Environment Variables
 
-- `RATE_LIMIT_API_KEY` - Optional. Enables hosted rate limiting via Upstash
-- `UPSTASH_REDIS_REST_URL` - Redis endpoint (backend only)
-- `UPSTASH_REDIS_REST_TOKEN` - Redis token (backend only)
+- `RATE_LIMIT_API_KEY` - Optional. Enables hosted rate limiting
 
 ## 📊 Response Format
 
@@ -125,38 +123,10 @@ Default: 100 requests per 60 seconds per IP.
 }
 ```
 
-## 🎯 Using with Other Frameworks
-
-Limity works with **any** web framework. See our guide:
-
-- **[USING.md](./USING.md)** - Framework-specific examples (Express, Fastify, FastAPI, Flask, Django, etc.)
-
-All use the same API - no framework-specific code needed!
-
-
-│   ├── fastify-app/          # Fastify example
-│   ├── fastapi-app/          # FastAPI example
-│   ├── flask-app/            # Flask example
-│   └── django-app/           # Django example
-├── pnpm-workspace.yaml
-└── package.json
-```
-
 ## 📚 Documentation
 
-**Getting Started:**
-- **[USING.md](./USING.md)** - How to use Limity in your projects (npm/pip/local)
-
-**Framework Guides:**
-- **[FRAMEWORK_GUIDE.md](./FRAMEWORK_GUIDE.md)** - TypeScript/JavaScript (Express, Fastify, NestJS, etc.)
-- **[PYTHON_GUIDE.md](./PYTHON_GUIDE.md)** - Python (FastAPI, Flask, Django, etc.)
-- **[PYTHON_QUICK_START.md](./PYTHON_QUICK_START.md)** - Python quick reference
-
-**Publishing & Development:**
-- **[PUBLISHING.md](./PUBLISHING.md)** - How to publish to npm and PyPI
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design and how it works
-- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Development guide
-- **[PROJECT_COMPLETE.md](./PROJECT_COMPLETE.md)** - Full project inventory
+- **[USING.md](./USING.md)** - How to use Limity in your projects
+- **[PUBLISHING.md](./PUBLISHING.md)** - How to publish packages
 
 ## 📝 License
 
