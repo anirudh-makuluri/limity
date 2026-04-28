@@ -26,7 +26,7 @@ export async function hostedLimiter(
 
     if (!response.ok) {
       // On API error, we don't throw - just return false
-      console.error(`Rate limit API error: ${response.status}`);
+      (globalThis as any).console?.error?.(`Rate limit API error: ${response.status}`);
       return {
         allowed: false,
         remaining: 0,
@@ -38,7 +38,7 @@ export async function hostedLimiter(
     return data;
   } catch (err) {
     // Network error - don't throw
-    console.error('Rate limit API request failed:', err);
+    (globalThis as any).console?.error?.('Rate limit API request failed:', err);
     return {
       allowed: false,
       remaining: 0,
