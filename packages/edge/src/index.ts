@@ -15,7 +15,7 @@ export async function checkRateLimit(
   }
 ): Promise<RateLimitResult> {
   const {
-    keyFn = (req) => {
+    keyFn = (req: Request | EdgeRequest) => {
       if (req instanceof Request) {
         return req.headers.get('x-forwarded-for') || 
                req.headers.get('cf-connecting-ip') ||

@@ -1,9 +1,33 @@
 {
   "name": "@limity/edge",
   "version": "0.1.0",
-  "private": true,
+  "description": "Serverless and edge runtime rate limiting helper",
+  "license": "MIT",
+  "author": "Limity Contributors",
+  "homepage": "https://github.com/anirudh-makuluri/limity",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anirudh-makuluri/limity",
+    "directory": "packages/edge"
+  },
+  "keywords": [
+    "rate-limiting",
+    "rate-limit",
+    "ratelimit",
+    "edge",
+    "serverless",
+    "cloudflare",
+    "vercel",
+    "deno",
+    "api"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"

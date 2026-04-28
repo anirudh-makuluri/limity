@@ -125,17 +125,20 @@ limity/
 
 ## 📚 Documentation
 
-**📋 [PROJECT_COMPLETE.md](./PROJECT_COMPLETE.md)** - Full project summary with file inventory and status
-
-**Quick Start Guides:**
+**Getting Started:**
+- **[USING.md](./USING.md)** - How to use Limity in your projects (npm/pip/local)
 - **[LANGUAGES.md](./LANGUAGES.md)** - Quick comparison across TypeScript, Python, Go
-- **[FRAMEWORK_GUIDE.md](./FRAMEWORK_GUIDE.md)** - TypeScript/JavaScript frameworks
-- **[PYTHON_GUIDE.md](./PYTHON_GUIDE.md)** - Python frameworks and patterns
+
+**Framework Guides:**
+- **[FRAMEWORK_GUIDE.md](./FRAMEWORK_GUIDE.md)** - TypeScript/JavaScript (Express, Fastify, NestJS, etc.)
+- **[PYTHON_GUIDE.md](./PYTHON_GUIDE.md)** - Python (FastAPI, Flask, Django, etc.)
 - **[PYTHON_QUICK_START.md](./PYTHON_QUICK_START.md)** - Python quick reference
 
-**Deep Dives:**
+**Publishing & Development:**
+- **[PUBLISHING.md](./PUBLISHING.md)** - How to publish to npm and PyPI
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design and how it works
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Development guide
+- **[PROJECT_COMPLETE.md](./PROJECT_COMPLETE.md)** - Full project inventory
 
 ## 📝 License
 

@@ -1,15 +1,39 @@
 {
   "name": "@limity/node",
   "version": "0.1.0",
-  "private": true,
+  "description": "Express.js rate limiting middleware",
+  "license": "MIT",
+  "author": "Limity Contributors",
+  "homepage": "https://github.com/anirudh-makuluri/limity",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anirudh-makuluri/limity",
+    "directory": "packages/node"
+  },
+  "keywords": [
+    "rate-limiting",
+    "rate-limit",
+    "ratelimit",
+    "express",
+    "middleware",
+    "api"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
   },
   "dependencies": {
     "@limity/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": "^4.17.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

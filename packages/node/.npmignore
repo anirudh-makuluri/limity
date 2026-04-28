@@ -1,0 +1,25 @@
+# Source files (compiled to dist)
+src/
+*.ts
+!*.d.ts
+
+# Development
+tsconfig.json
+node_modules/
+
+# Testing
+*.test.ts
+*.spec.ts
+__tests__/
+coverage/
+
+# Tools
+.eslintrc*
+.prettierrc*
+jest.config.*
+
+# Other
+.git/
+.github/
+.gitignore
+README.dev.md
