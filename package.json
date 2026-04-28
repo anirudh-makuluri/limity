@@ -1,0 +1,14 @@
+{
+  "name": "limity",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Developer-first rate limiting tool",
+  "scripts": {
+    "dev": "pnpm -r run dev",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

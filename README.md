@@ -1,0 +1,142 @@
+# Limity
+
+Developer-first rate limiting tool. Built for simplicity and performance.
+
+**Works everywhere:** TypeScript/JavaScript, Python, Go.
+
+## 🎯 Features
+
+- **In-memory by default** - Zero setup, works immediately
+- **Auto-upgrade to hosted** - Set an API key, instantly scales
+- **Consistent API** - Same logic everywhere (TypeScript, Python, Go)
+- **Minimal overhead** - ~1ms latency with memory limiter
+- **Production-ready** - Clean code, proper error handling
+- **Framework agnostic** - Use with any framework
+
+## 📦 Packages
+
+### Go
+- `apps/api` - Go backend with Upstash Redis
+
+### TypeScript/JavaScript
+- `packages/core` - Core rate limiting logic (pure TS)
+- `packages/node` - Express middleware
+- `packages/edge` - Fetch/Edge helper
+- `examples/express-app` - Express example
+- `examples/nextjs-app` - Next.js example
+- `examples/fastify-app` - Fastify example
+
+### Python
+- `packages/python` - Pure Python SDK (zero deps)
+- `examples/fastapi-app` - FastAPI example
+- `examples/flask-app` - Flask example
+- `examples/django-app` - Django example
+
+## 🚀 Quick Start
+
+### TypeScript/JavaScript
+
+```typescript
+import { rateLimit } from '@limity/core';
+
+const result = await rateLimit({
+  key: 'user:123',
+  limit: 100,
+  window: 60,
+});
+
+if (!result.allowed) {
+  return error(429, 'Too many requests');
+}
+```
+
+Or with **Express** (one-liner):
+
+```typescript
+import { rateLimit } from '@limity/node';
+app.use(rateLimit());
+```
+
+### Python
+
+```python
+from limity import rate_limit
+
+result = rate_limit(
+  key='user:123',
+  limit=100,
+  window=60,
+)
+
+if not result.allowed:
+  return error(429, 'Too many requests')
+```
+
+Both support **memory mode** (default) and **hosted mode** (with API key).
+
+Default: 100 requests per 60 seconds per IP.
+
+## 🔌 Environment Variables
+
+- `RATE_LIMIT_API_KEY` - Optional. Enables hosted rate limiting via Upstash
+- `UPSTASH_REDIS_REST_URL` - Redis endpoint (backend only)
+- `UPSTASH_REDIS_REST_TOKEN` - Redis token (backend only)
+
+## 📊 Response Format
+
+```typescript
+{
+  allowed: boolean;      // Whether the request is allowed
+  remaining: number;     // Requests remaining in window
+  reset: number;         // Unix timestamp when window resets
+}
+```
+
+## 🎯 Using with Other Frameworks
+
+Limity works with **any** web framework. See our guides:
+
+- **[FRAMEWORK_GUIDE.md](./FRAMEWORK_GUIDE.md)** - JavaScript/TypeScript (Express, Fastify, NestJS, etc.)
+- **[PYTHON_GUIDE.md](./PYTHON_GUIDE.md)** - Python (FastAPI, Flask, Django, etc.)
+
+All use the same API - no framework-specific code needed!
+
+## 🏗️ Project Structure
+
+```
+limity/
+├── apps/
+│   └── api/                  # Go backend
+├── packages/
+│   ├── core/                 # Core rate limiting logic
+│   ├── node/                 # Express middleware
+│   ├── edge/                 # Fetch/Edge helper
+│   └── python/               # Python SDK
+├── examples/
+│   ├── express-app/          # Express example
+│   ├── nextjs-app/           # Next.js example
+│   ├── fastify-app/          # Fastify example
+│   ├── fastapi-app/          # FastAPI example
+│   ├── flask-app/            # Flask example
+│   └── django-app/           # Django example
+├── pnpm-workspace.yaml
+└── package.json
+```
+
+## 📚 Documentation
+
+**📋 [PROJECT_COMPLETE.md](./PROJECT_COMPLETE.md)** - Full project summary with file inventory and status
+
+**Quick Start Guides:**
+- **[LANGUAGES.md](./LANGUAGES.md)** - Quick comparison across TypeScript, Python, Go
+- **[FRAMEWORK_GUIDE.md](./FRAMEWORK_GUIDE.md)** - TypeScript/JavaScript frameworks
+- **[PYTHON_GUIDE.md](./PYTHON_GUIDE.md)** - Python frameworks and patterns
+- **[PYTHON_QUICK_START.md](./PYTHON_QUICK_START.md)** - Python quick reference
+
+**Deep Dives:**
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design and how it works
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Development guide
+
+## 📝 License
+
+MIT
