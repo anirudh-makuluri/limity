@@ -15,26 +15,35 @@ Developer-first rate limiting tool. Built for simplicity and performance.
 
 ## 📦 Packages
 
-### Go
-- `apps/api` - Go backend with Upstash Redis
-
 ### TypeScript/JavaScript
-- `packages/core` - Core rate limiting logic (pure TS)
-- `packages/node` - Express middleware
-- `packages/edge` - Fetch/Edge helper
-- `examples/express-app` - Express example
-- `examples/nextjs-app` - Next.js example
-- `examples/fastify-app` - Fastify example
+
+**Choose the package that fits your use case:**
+
+| Package | Use Case | Best For |
+|---------|----------|----------|
+| **[@limity/core](./packages/core)** | Direct rate limiting logic | Libraries, SDKs, custom implementations |
+| **[@limity/node](./packages/node)** | Express middleware | Express.js applications |
+| **[@limity/edge](./packages/edge)** | Edge functions & serverless | Vercel, Cloudflare, Deno Deploy |
+
+**Examples:**
+- `examples/express-app` - Express.js usage
+- `examples/nextjs-app` - Next.js usage
+- `examples/fastify-app` - Fastify usage
 
 ### Python
-- `packages/python` - Pure Python SDK (zero deps)
+- `packages/python` - Pure Python SDK (zero dependencies)
 - `examples/fastapi-app` - FastAPI example
 - `examples/flask-app` - Flask example
 - `examples/django-app` - Django example
 
+### Go
+- `apps/api` - Go backend with Upstash Redis
+
 ## 🚀 Quick Start
 
 ### TypeScript/JavaScript
+
+**For basic rate limiting:**
 
 ```typescript
 import { rateLimit } from '@limity/core';
@@ -50,11 +59,35 @@ if (!result.allowed) {
 }
 ```
 
-Or with **Express** (one-liner):
+**For Express.js (automatic IP rate limiting):**
 
 ```typescript
+import express from 'express';
 import { rateLimit } from '@limity/node';
-app.use(rateLimit());
+
+const app = express();
+app.use(rateLimit()); // Automatic IP-based rate limiting
+
+app.listen(3000);
+```
+
+**For edge functions (Vercel, Cloudflare, etc):**
+
+```typescript
+import { checkRateLimit } from '@limity/edge';
+
+export default async function handler(req: Request) {
+  const result = await checkRateLimit(req, {
+    limit: 100,
+    window: 60,
+  });
+
+  if (!result.allowed) {
+    return new Response('Too many requests', { status: 429 });
+  }
+
+  return new Response('Hello!');
+}
 ```
 
 ### Python

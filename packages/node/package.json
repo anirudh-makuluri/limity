@@ -1,6 +1,6 @@
 {
   "name": "@limity/node",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Express.js rate limiting middleware",
   "license": "MIT",
   "author": "Limity Contributors",

@@ -1,6 +1,6 @@
 {
   "name": "@limity/edge",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Serverless and edge runtime rate limiting helper",
   "license": "MIT",
   "author": "Limity Contributors",
