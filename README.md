@@ -127,27 +127,13 @@ Default: 100 requests per 60 seconds per IP.
 
 ## 🎯 Using with Other Frameworks
 
-Limity works with **any** web framework. See our guides:
+Limity works with **any** web framework. See our guide:
 
-- **[FRAMEWORK_GUIDE.md](./FRAMEWORK_GUIDE.md)** - JavaScript/TypeScript (Express, Fastify, NestJS, etc.)
-- **[PYTHON_GUIDE.md](./PYTHON_GUIDE.md)** - Python (FastAPI, Flask, Django, etc.)
+- **[USING.md](./USING.md)** - Framework-specific examples (Express, Fastify, FastAPI, Flask, Django, etc.)
 
 All use the same API - no framework-specific code needed!
 
-## 🏗️ Project Structure
 
-```
-limity/
-├── apps/
-│   └── api/                  # Go backend
-├── packages/
-│   ├── core/                 # Core rate limiting logic
-│   ├── node/                 # Express middleware
-│   ├── edge/                 # Fetch/Edge helper
-│   └── python/               # Python SDK
-├── examples/
-│   ├── express-app/          # Express example
-│   ├── nextjs-app/           # Next.js example
 │   ├── fastify-app/          # Fastify example
 │   ├── fastapi-app/          # FastAPI example
 │   ├── flask-app/            # Flask example
@@ -160,7 +146,6 @@ limity/
 
 **Getting Started:**
 - **[USING.md](./USING.md)** - How to use Limity in your projects (npm/pip/local)
-- **[LANGUAGES.md](./LANGUAGES.md)** - Quick comparison across TypeScript, Python, Go
 
 **Framework Guides:**
 - **[FRAMEWORK_GUIDE.md](./FRAMEWORK_GUIDE.md)** - TypeScript/JavaScript (Express, Fastify, NestJS, etc.)
