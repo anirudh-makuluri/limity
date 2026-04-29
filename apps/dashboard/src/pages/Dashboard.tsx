@@ -1,26 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
+import * as keysAPI from '~/api/keys'
 
 interface ApiKey {
   id: string
+  user_id: string
   key: string
   created_at: string
   revoked_at: string | null
 }
 
 export default function DashboardPage() {
-  const { isLoading, isAuthenticated, user, getAccessTokenSilently } = useAuth0()
+  const { isLoading, isAuthenticated, user, getIdTokenClaims } = useAuth0()
   const navigate = useNavigate()
-  const [keys, setKeys] = useState<ApiKey[]>([
-    {
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      key: 'limity_8fkd9sj2k1j29k1j2k1j29k',
-      created_at: new Date().toISOString(),
-      revoked_at: null,
-    },
-  ])
+  const [keys, setKeys] = useState<ApiKey[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isLoadingKeys, setIsLoadingKeys] = useState(true)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -28,15 +24,35 @@ export default function DashboardPage() {
     }
   }, [isLoading, isAuthenticated, navigate])
 
+  // Load existing keys from backend
+  useEffect(() => {
+    if (isAuthenticated && user?.sub) {
+      loadKeys()
+    }
+  }, [isAuthenticated, user?.sub])
+
+  const loadKeys = async () => {
+    try {
+      setIsLoadingKeys(true)
+      const claims = await getIdTokenClaims()
+      const idToken = claims?.__raw
+      console.log('Got ID token:', idToken ? `${idToken.substring(0, 20)}...` : 'empty')
+      const fetchedKeys = await keysAPI.getKeys(idToken)
+      setKeys(fetchedKeys || [])
+    } catch (error) {
+      console.error('Failed to load keys:', error)
+      setKeys([])
+    } finally {
+      setIsLoadingKeys(false)
+    }
+  }
+
   const handleGenerateKey = async () => {
     setIsGenerating(true)
     try {
-      const newKey: ApiKey = {
-        id: Math.random().toString(36).substring(7),
-        key: `limity_${Math.random().toString(36).substring(2, 28)}`,
-        created_at: new Date().toISOString(),
-        revoked_at: null,
-      }
+      const claims = await getIdTokenClaims()
+      const idToken = claims?.__raw
+      const newKey = await keysAPI.generateKey(idToken)
       setKeys([newKey, ...keys])
       alert(`Your new API key: ${newKey.key}\n\nMake sure to copy it now - you won't be able to see it again!`)
     } catch (error) {
@@ -51,6 +67,9 @@ export default function DashboardPage() {
     if (!confirm('Are you sure you want to revoke this key?')) return
 
     try {
+      const claims = await getIdTokenClaims()
+      const idToken = claims?.__raw
+      await keysAPI.revokeKey(keyId, idToken)
       setKeys(keys.map(k => k.id === keyId ? { ...k, revoked_at: new Date().toISOString() } : k))
     } catch (error) {
       console.error('Failed to revoke key:', error)
@@ -58,7 +77,7 @@ export default function DashboardPage() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || isLoadingKeys) {
     return <div className="text-center py-12">Loading...</div>
   }
 

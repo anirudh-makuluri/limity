@@ -1,12 +1,18 @@
-import { createClient } from '@supabase/supabase-js'
+import { Pool } from 'pg'
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || ''
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || ''
+const databaseUrl = process.env.DATABASE_URL || ''
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+let pool: Pool | null = null
 
-// Server-side client with admin privileges
+export const getDbPool = () => {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: databaseUrl,
+    })
+  }
+  return pool
+}
+
 export const createServerClient = () => {
-  const serviceKey = process.env.SUPABASE_SERVICE_KEY || ''
-  return createClient(supabaseUrl, serviceKey)
+  return getDbPool()
 }

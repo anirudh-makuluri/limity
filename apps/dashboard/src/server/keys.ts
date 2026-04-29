@@ -1,56 +1,43 @@
 import { createServerClient } from '~/lib/supabase'
 import { generateRandomKey } from '~/lib/utils'
 
-const supabase = createServerClient()
+const pool = createServerClient()
 
 export async function generateKey(userId: string) {
   const key = generateRandomKey()
 
-  const { data, error } = await supabase
-    .from('api_keys')
-    .insert({
-      user_id: userId,
-      key,
-    })
-    .select()
-    .single()
+  const result = await pool.query(
+    'INSERT INTO api_keys (user_id, key) VALUES ($1, $2) RETURNING *',
+    [userId, key]
+  )
 
-  if (error) throw error
-  return data
+  return result.rows[0]
 }
 
 export async function revokeKey(keyId: string, userId: string) {
-  const { data, error } = await supabase
-    .from('api_keys')
-    .update({ revoked_at: new Date().toISOString() })
-    .eq('id', keyId)
-    .eq('user_id', userId)
-    .select()
-    .single()
+  const result = await pool.query(
+    'UPDATE api_keys SET revoked_at = NOW() WHERE id = $1 AND user_id = $2 RETURNING *',
+    [keyId, userId]
+  )
 
-  if (error) throw error
-  return data
+  return result.rows[0]
 }
 
 export async function getUserKeys(userId: string) {
-  const { data, error } = await supabase
-    .from('api_keys')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+  const result = await pool.query(
+    'SELECT * FROM api_keys WHERE user_id = $1 ORDER BY created_at DESC',
+    [userId]
+  )
 
-  if (error) throw error
-  return data
+  return result.rows
 }
 
 export async function verifyKey(key: string) {
-  const { data, error } = await supabase
-    .from('api_keys')
-    .select('user_id')
-    .eq('key', key)
-    .is('revoked_at', null)
-    .single()
+  const result = await pool.query(
+    'SELECT user_id FROM api_keys WHERE key = $1 AND revoked_at IS NULL',
+    [key]
+  )
 
-  if (error) return null
-  return data?.user_id
+  if (result.rows.length === 0) return null
+  return result.rows[0].user_id
 }

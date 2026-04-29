@@ -17,6 +17,7 @@ export default function App() {
       authorizationParams={{
         redirect_uri: window.location.origin,
       }}
+      cacheLocation="localstorage"
     >
       <QueryClientProvider client={queryClient}>
         <Router>
