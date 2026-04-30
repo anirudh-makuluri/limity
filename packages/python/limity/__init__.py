@@ -85,7 +85,7 @@ class MemoryLimiter:
 class HostedLimiter:
     """Rate limiter that calls hosted API."""
     
-    def __init__(self, api_key: str, api_url: str = "https://api.limity.dev"):
+    def __init__(self, api_key: str, api_url: str = "https://limity.smart-deploy.xyz"):
         self.api_key = api_key
         self.api_url = api_url
     

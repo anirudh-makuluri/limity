@@ -6,7 +6,7 @@ const DEFAULT_WINDOW = 60;
 export async function hostedLimiter(
   options: RateLimitOptions,
   apiKey: string,
-  apiUrl: string = 'https://api.limity.dev'
+  apiUrl: string = 'https://limity.smart-deploy.xyz'
 ): Promise<RateLimitResult> {
   const { key, limit = DEFAULT_LIMIT, window = DEFAULT_WINDOW } = options;
 
