@@ -5,6 +5,7 @@ import "context"
 type PostgresStore interface {
 	Ping(ctx context.Context) error
 	EnsureUserWithAPIKey(ctx context.Context, claims *TokenClaims) (*UserProfile, error)
+	RotateAPIKey(ctx context.Context, userID string) (string, error)
 }
 
 type RedisStore interface {

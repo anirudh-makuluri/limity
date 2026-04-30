@@ -21,7 +21,7 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func generateAPIKey() string {
-	bytes := make([]byte, 32)
+	bytes := make([]byte, 16)
 	if _, err := rand.Read(bytes); err != nil {
 		panic(err)
 	}
@@ -77,4 +77,25 @@ func (s *Store) EnsureUserWithAPIKey(ctx context.Context, claims *api.TokenClaim
 		}
 	}
 	return profile, nil
+}
+
+func (s *Store) RotateAPIKey(ctx context.Context, userID string) (string, error) {
+	if s.db == nil {
+		return "", fmt.Errorf("database not initialized")
+	}
+	if strings.TrimSpace(userID) == "" {
+		return "", fmt.Errorf("invalid user id")
+	}
+
+	newKey := generateAPIKey()
+	var key string
+	err := s.db.QueryRowContext(
+		ctx,
+		`UPDATE users SET api_key = $2 WHERE id = $1 RETURNING api_key`,
+		userID, newKey,
+	).Scan(&key)
+	if err != nil {
+		return "", fmt.Errorf("failed to rotate api key: %w", err)
+	}
+	return key, nil
 }

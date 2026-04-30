@@ -22,3 +22,18 @@ export async function getMe(token: string): Promise<MeResponse> {
 
   return response.json()
 }
+
+export async function refreshApiKey(token: string): Promise<MeResponse> {
+  const response = await fetch(`${API_URL}/api/me/refresh-key`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to refresh API key')
+  }
+
+  return response.json()
+}

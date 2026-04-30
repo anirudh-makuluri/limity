@@ -2,9 +2,11 @@ import React, { useMemo, useState } from 'react'
 
 interface ApiKeyEnvSnippetProps {
   apiKey: string
+  onRefresh: () => Promise<void>
+  isRefreshing: boolean
 }
 
-export default function ApiKeyEnvSnippet({ apiKey }: ApiKeyEnvSnippetProps) {
+export default function ApiKeyEnvSnippet({ apiKey, onRefresh, isRefreshing }: ApiKeyEnvSnippetProps) {
   const [copied, setCopied] = useState(false)
 
   const envText = useMemo(() => {
@@ -41,6 +43,9 @@ export default function ApiKeyEnvSnippet({ apiKey }: ApiKeyEnvSnippetProps) {
         <p className="retro-lead">Copy and paste this into your app's `.env` file.</p>
         <pre className="retro-env-block">{envText}</pre>
         <div className="retro-toolbar">
+          <button className="retro-button" type="button" onClick={onRefresh} disabled={isRefreshing}>
+            {isRefreshing ? 'Refreshing...' : 'Refresh Key'}
+          </button>
           <button className="retro-button" type="button" onClick={handleCopy}>
             {copied ? 'Copied!' : 'Copy .env'}
           </button>

@@ -7,4 +7,5 @@ func (s *Server) RegisterRoutes(r chi.Router) {
 	r.HandleFunc("/health", s.corsMiddleware(s.healthHandler))
 
 	r.HandleFunc("/api/me", s.corsMiddleware(s.meHandler))
+	r.HandleFunc("/api/me/refresh-key", s.corsMiddleware(s.refreshAPIKeyHandler))
 }

@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const [me, setMe] = useState<MeResponse | null>(null)
   const [isLoadingMe, setIsLoadingMe] = useState(true)
+  const [isRefreshingKey, setIsRefreshingKey] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -36,6 +37,19 @@ export default function DashboardPage() {
       setMe(null)
     } finally {
       setIsLoadingMe(false)
+    }
+  }
+
+  const handleRefreshKey = async () => {
+    try {
+      setIsRefreshingKey(true)
+      const accessToken = await getAccessToken()
+      const updatedProfile = await keysAPI.refreshApiKey(accessToken)
+      setMe(updatedProfile)
+    } catch (error) {
+      console.error('Failed to refresh API key:', error)
+    } finally {
+      setIsRefreshingKey(false)
     }
   }
 
@@ -99,7 +113,11 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        <ApiKeyEnvSnippet apiKey={primaryKey} />
+        <ApiKeyEnvSnippet
+          apiKey={primaryKey}
+          onRefresh={handleRefreshKey}
+          isRefreshing={isRefreshingKey}
+        />
       </section>
       <div className="retro-taskbar absolute bottom-0 left-0 right-0 flex items-center gap-4 px-4 py-2 bg-gray-800 text-white">
         <button className="retro-start">Start</button>
