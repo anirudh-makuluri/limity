@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import * as keysAPI from '~/api/keys'
+import { Activity, Database, Shield, TerminalSquare } from 'lucide-react'
 
 interface ApiKey {
   id: string
@@ -78,85 +79,134 @@ export default function DashboardPage() {
   }
 
   if (isLoading || isLoadingKeys) {
-    return <div className="text-center py-12">Loading...</div>
+    return <div className="retro-window p-8 text-center">Booting dashboard...</div>
   }
 
+  const titleBar = (name: string, icon?: React.ReactNode) => (
+    <div className="retro-titlebar">
+      <span className="retro-title-text">{icon}{name}</span>
+      <span className="retro-window-controls" aria-hidden>
+        <i>_</i><i>□</i><i>X</i>
+      </span>
+    </div>
+  )
+
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900">API Keys</h2>
-        <p className="text-gray-600">Manage your rate limiting API keys</p>
-      </div>
-
-      <div className="mb-8">
-        <button
-          onClick={handleGenerateKey}
-          disabled={isGenerating}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
-        >
-          {isGenerating ? 'Generating...' : 'Generate New Key'}
-        </button>
-      </div>
-
-      {keys.length === 0 ? (
-        <div className="text-center py-12 border border-gray-200 rounded-lg bg-gray-50">
-          <p className="text-gray-600">No API keys yet. Generate one to get started!</p>
+    <div className="retro-desktop">
+      <aside className="retro-sidebar">
+        <h2 className="retro-sidebar-title">System</h2>
+        <p className="retro-sidebar-subtitle">v2.0.98</p>
+        <div className="retro-side-actions">
+          <button className="retro-side-button">My Computer</button>
+          <button className="retro-side-button">Network</button>
+          <button className="retro-side-button">API Keys</button>
+          <button className="retro-side-button">Usage</button>
         </div>
-      ) : (
-        <div className="overflow-x-auto border border-gray-200 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Key ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {keys.map((key) => (
-                <tr key={key.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                    {key.id.substring(0, 16)}...
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {new Date(key.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        key.revoked_at
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}
-                    >
-                      {key.revoked_at ? 'Revoked' : 'Active'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {!key.revoked_at && (
-                      <button
-                        onClick={() => handleRevokeKey(key.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Revoke
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      </aside>
+
+      <section className="retro-workspace">
+        <div className="retro-grid-top">
+          <div className="retro-window">
+            {titleBar('Security_Properties.sec', <Shield size={14} />)}
+            <div className="retro-window-body">
+              <p className="retro-lead">Your personal API access credentials. Keep these secret.</p>
+              <label className="retro-field-label">Your API Key:</label>
+              <div className="retro-key-row">
+                <div className="retro-key-mask">{keys.length ? '***********************' : 'No key generated yet'}</div>
+                <button className="retro-button" onClick={handleGenerateKey} disabled={isGenerating}>
+                  {isGenerating ? 'Working...' : 'Generate'}
+                </button>
+              </div>
+              <div className="retro-toolbar">
+                <button className="retro-button" onClick={handleGenerateKey} disabled={isGenerating}>
+                  New Key
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="retro-stack">
+            <div className="retro-window compact">
+              {titleBar('NODE_HEALTH')}
+              <div className="retro-window-body">
+                <div className="retro-status-item"><span><Database size={14} /> Core API</span><i className="dot green" /></div>
+                <div className="retro-status-item"><span><Shield size={14} /> DB Cluster</span><i className="dot green" /></div>
+                <div className="retro-status-item"><span><Activity size={14} /> Worker A</span><i className={`dot ${keys.some(k => !k.revoked_at) ? 'green' : 'red'}`} /></div>
+              </div>
+            </div>
+            <div className="retro-window compact">
+              {titleBar('OPS_LOG.TXT')}
+              <div className="retro-window-body retro-log-body">
+                <p>[14:00:01] System initializing...</p>
+                <p>[14:00:12] Auth handshake complete</p>
+                <p>[14:01:11] Key registry in sync</p>
+                <p>[14:02:10] {keys.length} key(s) on record</p>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+
+        <div className="retro-window">
+          {titleBar('Real_Time_Traffic.mon', <Activity size={14} />)}
+          <div className="retro-window-body">
+            <div className="retro-terminal">
+              <p>REQ/SEC: {4800 + keys.length * 7}</p>
+              <div className="retro-bars" aria-hidden>
+                {Array.from({ length: 18 }).map((_, i) => (
+                  <span key={i} style={{ height: `${28 + Math.sin(i / 3) * 18 + i * 6}%` }} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="retro-window">
+          {titleBar('API_KEYS.DAT', <TerminalSquare size={14} />)}
+          <div className="retro-menubar">File Edit Search Help</div>
+          <div className="retro-window-body no-padding">
+            {keys.length === 0 ? (
+              <div className="retro-empty-state">
+                <p>No API keys yet. Generate one to get started.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="retro-table">
+                  <thead>
+                    <tr>
+                      <th>Key ID</th>
+                      <th>Created</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {keys.map((key) => (
+                      <tr key={key.id}>
+                        <td>{key.id.substring(0, 16)}...</td>
+                        <td>{new Date(key.created_at).toLocaleDateString()}</td>
+                        <td>{key.revoked_at ? 'Revoked' : 'Active'}</td>
+                        <td>
+                          {!key.revoked_at && (
+                            <button className="retro-button danger" onClick={() => handleRevokeKey(key.id)}>
+                              Revoke
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+      <div className="retro-taskbar">
+        <button className="retro-start">Start</button>
+        <span className="retro-task-item">Terminal</span>
+        <span className="retro-task-item">Keys</span>
+        <span className="retro-task-clock">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+      </div>
     </div>
   )
 }
