@@ -1,48 +1,74 @@
 package api
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
 	"strings"
+	"time"
 )
 
-func extractUserClaimsFromToken(authHeader string) (*TokenClaims, error) {
+type supabaseUserResponse struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+}
+
+func extractBearerToken(authHeader string) (string, error) {
 	authHeader = strings.TrimSpace(authHeader)
 	if authHeader == "" {
-		return nil, fmt.Errorf("missing Authorization header")
+		return "", fmt.Errorf("missing Authorization header")
 	}
 
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 	token = strings.TrimSpace(token)
 	if token == authHeader || token == "" {
-		return nil, fmt.Errorf("invalid Authorization header format (expected 'Bearer <token>')")
+		return "", fmt.Errorf("invalid Authorization header format (expected 'Bearer <token>')")
 	}
 
-	parts := strings.Split(token, ".")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid JWT format: expected 3 parts, got %d", len(parts))
-	}
+	return token, nil
+}
 
-	payload := parts[1]
-	padding := 4 - len(payload)%4
-	if padding != 4 {
-		payload += strings.Repeat("=", padding)
-	}
-
-	decoded, err := base64.URLEncoding.DecodeString(payload)
+func extractUserClaimsFromToken(authHeader string) (*TokenClaims, error) {
+	token, err := extractBearerToken(authHeader)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode token payload: %v", err)
+		return nil, err
 	}
 
-	var claims TokenClaims
-	if err := json.Unmarshal(decoded, &claims); err != nil {
-		return nil, fmt.Errorf("failed to parse token claims: %v", err)
+	supabaseURL := strings.TrimSpace(os.Getenv("SUPABASE_URL"))
+	supabaseAnonKey := strings.TrimSpace(os.Getenv("SUPABASE_ANON_KEY"))
+	if supabaseURL == "" || supabaseAnonKey == "" {
+		return nil, fmt.Errorf("SUPABASE_URL and SUPABASE_ANON_KEY are required")
 	}
 
-	if claims.Sub == "" {
-		return nil, fmt.Errorf("no sub claim in token")
+	req, err := http.NewRequest(http.MethodGet, strings.TrimRight(supabaseURL, "/")+"/auth/v1/user", nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create auth request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("apikey", supabaseAnonKey)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify token with supabase: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("supabase token verification failed with status %d", resp.StatusCode)
 	}
 
-	return &claims, nil
+	var user supabaseUserResponse
+	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+		return nil, fmt.Errorf("failed to decode supabase user response: %w", err)
+	}
+	if user.ID == "" {
+		return nil, fmt.Errorf("supabase user response missing id")
+	}
+
+	return &TokenClaims{
+		Sub:   user.ID,
+		Email: user.Email,
+	}, nil
 }

@@ -1,18 +1,10 @@
-import { Pool } from 'pg'
+import { createClient } from '@supabase/supabase-js'
 
-const databaseUrl = process.env.DATABASE_URL || ''
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-let pool: Pool | null = null
-
-export const getDbPool = () => {
-  if (!pool) {
-    pool = new Pool({
-      connectionString: databaseUrl,
-    })
-  }
-  return pool
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY')
 }
 
-export const createServerClient = () => {
-  return getDbPool()
-}
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)

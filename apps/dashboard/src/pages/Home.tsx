@@ -1,10 +1,10 @@
 import React from 'react'
-import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useAuth } from '~/lib/useAuth'
 
 export default function HomePage() {
-  const { isLoading, isAuthenticated, error } = useAuth0()
+  const { isLoading, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [viewport, setViewport] = useState({ width: 800, height: 600 })
 
@@ -33,10 +33,6 @@ export default function HomePage() {
 
   if (isLoading) {
     return <div className="retro-window p-8 text-center">Booting homepage...</div>
-  }
-
-  if (error) {
-    return <div className="retro-window p-8 text-center">Error: {error.message}</div>
   }
 
   return (

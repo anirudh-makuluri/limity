@@ -1,46 +1,15 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
-interface ApiKey {
+export interface MeResponse {
   id: string
-  user_id: string
-  key: string
+  external_user_id: string
+  email: string
+  api_key: string
   created_at: string
-  revoked_at: string | null
 }
 
-export async function generateKey(token: string): Promise<ApiKey> {
-  const response = await fetch(`${API_URL}/api/keys/generate`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to generate key')
-  }
-
-  return response.json()
-}
-
-export async function revokeKey(keyId: string, token: string): Promise<void> {
-  const response = await fetch(`${API_URL}/api/keys/${keyId}/revoke`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to revoke key')
-  }
-}
-
-export async function getKeys(token: string): Promise<ApiKey[]> {
-  console.log('getKeys: sending request with token:', token ? `${token.substring(0, 20)}...` : 'empty')
-  const response = await fetch(`${API_URL}/api/keys`, {
+export async function getMe(token: string): Promise<MeResponse> {
+  const response = await fetch(`${API_URL}/api/me`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -48,9 +17,7 @@ export async function getKeys(token: string): Promise<ApiKey[]> {
   })
 
   if (!response.ok) {
-    const errorData = await response.text()
-    console.error('getKeys error response:', response.status, errorData)
-    throw new Error('Failed to fetch keys')
+    throw new Error('Failed to fetch user profile')
   }
 
   return response.json()

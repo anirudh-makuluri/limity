@@ -12,15 +12,15 @@ type CheckResponse struct {
 	Reset     int64 `json:"reset"`
 }
 
-type APIKey struct {
-	ID        string  `json:"id"`
-	UserID    string  `json:"user_id"`
-	Key       string  `json:"key"`
-	CreatedAt string  `json:"created_at"`
-	RevokedAt *string `json:"revoked_at"`
-}
-
 type TokenClaims struct {
 	Sub   string `json:"sub"`
 	Email string `json:"email"`
+}
+
+type UserProfile struct {
+	ID             string `json:"id"`
+	ExternalUserID string `json:"external_user_id"`
+	Email          string `json:"email"`
+	APIKey         string `json:"api_key"`
+	CreatedAt      string `json:"created_at"`
 }
