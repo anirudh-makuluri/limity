@@ -23,10 +23,14 @@ func (s *Server) meHandler(w http.ResponseWriter, r *http.Request) {
 
 	claims, err := extractUserClaimsFromToken(r.Header.Get("Authorization"))
 	if err != nil {
+		if s.metrics != nil {
+			s.metrics.authFailuresTotal.Inc()
+		}
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("invalid token: %v", err)})
 		return
 	}
+	setOwnerUserIDFromVerifiedAuth(r.Context(), claims.Sub)
 
 	userProfile, err := s.pg.EnsureUserWithAPIKey(r.Context(), claims)
 	if err != nil {
@@ -56,10 +60,14 @@ func (s *Server) refreshAPIKeyHandler(w http.ResponseWriter, r *http.Request) {
 
 	claims, err := extractUserClaimsFromToken(r.Header.Get("Authorization"))
 	if err != nil {
+		if s.metrics != nil {
+			s.metrics.authFailuresTotal.Inc()
+		}
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("invalid token: %v", err)})
 		return
 	}
+	setOwnerUserIDFromVerifiedAuth(r.Context(), claims.Sub)
 
 	userProfile, err := s.pg.EnsureUserWithAPIKey(r.Context(), claims)
 	if err != nil {

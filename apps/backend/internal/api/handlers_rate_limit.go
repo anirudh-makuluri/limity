@@ -12,12 +12,18 @@ func (s *Server) checkHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodPost {
+		if s.metrics != nil {
+			s.metrics.checkTotal.WithLabelValues("method_not_allowed").Inc()
+		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		json.NewEncoder(w).Encode(map[string]string{"error": "method not allowed"})
 		return
 	}
 
 	if s.redis == nil {
+		if s.metrics != nil {
+			s.metrics.checkTotal.WithLabelValues("error").Inc()
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "redis store not initialized"})
 		return
@@ -25,22 +31,39 @@ func (s *Server) checkHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req CheckRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		if s.metrics != nil {
+			s.metrics.checkTotal.WithLabelValues("bad_request").Inc()
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request"})
 		return
 	}
 
 	if req.Key == "" || req.Limit == 0 || req.Window == 0 {
+		if s.metrics != nil {
+			s.metrics.checkTotal.WithLabelValues("bad_request").Inc()
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "missing required fields"})
 		return
 	}
+	setAPIKeyFromCheckRequest(r.Context(), req.Key)
 
 	allowed, remaining, reset, err := s.rateLimitCheck(r.Context(), req.Key, req.Limit, req.Window)
 	if err != nil {
+		if s.metrics != nil {
+			s.metrics.checkTotal.WithLabelValues("error").Inc()
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
+	}
+	if s.metrics != nil {
+		if allowed {
+			s.metrics.checkTotal.WithLabelValues("allowed").Inc()
+		} else {
+			s.metrics.checkTotal.WithLabelValues("blocked").Inc()
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -56,11 +79,17 @@ func (s *Server) rateLimitCheck(ctx context.Context, key string, limit int, wind
 
 	count, err := s.redis.Incr(ctx, redisKey)
 	if err != nil {
+		if s.metrics != nil {
+			s.metrics.redisErrorsTotal.Inc()
+		}
 		return false, 0, 0, err
 	}
 
 	if count == 1 {
 		if err := s.redis.Expire(ctx, redisKey, window); err != nil {
+			if s.metrics != nil {
+				s.metrics.redisErrorsTotal.Inc()
+			}
 			return false, 0, 0, err
 		}
 	}
