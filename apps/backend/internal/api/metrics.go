@@ -91,7 +91,7 @@ func (s *Server) ObservabilityMiddleware(next http.Handler) http.Handler {
 		s.metrics.requestsTotal.WithLabelValues(route, method, status).Inc()
 		s.metrics.requestDuration.WithLabelValues(route, method).Observe(duration)
 
-		if s.analytics != nil {
+		if s.analytics != nil && r.URL.Path != "/health" {
 			enqueued := s.analytics.Enqueue(RequestEvent{
 				Timestamp:      time.Now().UTC(),
 				Method:         method,
