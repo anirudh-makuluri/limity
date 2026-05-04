@@ -17,7 +17,7 @@ export default function ApiKeyEnvSnippet({ apiKey, onRefresh, isRefreshing }: Ap
     return [
       '# Limity API Configuration',
       `LIMITY_API_KEY=${apiKey}`,
-      'LIMITY_BASE_URL=https://limity.smart-deploy.xyz',
+      'LIMITY_BASE_URL=https://api.limity.smart-deploy.xyz',
     ].join('\n')
   }, [apiKey])
 

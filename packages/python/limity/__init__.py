@@ -85,7 +85,7 @@ class MemoryLimiter:
 class HostedLimiter:
     """Rate limiter that calls hosted API."""
     
-    def __init__(self, api_key: str, api_url: str = "https://limity.smart-deploy.xyz"):
+    def __init__(self, api_key: str, api_url: str = "https://api.limity.smart-deploy.xyz"):
         self.api_key = api_key
         self.api_url = api_url
     
@@ -170,7 +170,7 @@ def rate_limit(
         # Use hosted limiter with fallback to memory
         global _hosted_limiter
         if _hosted_limiter is None:
-            _hosted_limiter = HostedLimiter(api_key, base_url or "https://limity.smart-deploy.xyz")
+            _hosted_limiter = HostedLimiter(api_key, base_url or "https://api.limity.smart-deploy.xyz")
         
         result = _hosted_limiter.check(key, limit, window)
         
