@@ -1,22 +1,9 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '~/lib/useAuth'
 
 export default function HomePage() {
-  const { isLoading, isAuthenticated } = useAuth()
-  const navigate = useNavigate()
+  const { isLoading } = useAuth()
   const [viewport, setViewport] = useState({ width: 800, height: 600 })
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      // Small delay to ensure auth state is fully settled
-      const timer = setTimeout(() => {
-        navigate('/dashboard')
-      }, 500)
-      return () => clearTimeout(timer)
-    }
-  }, [isLoading, isAuthenticated, navigate])
 
   useEffect(() => {
     const updateViewport = () => {
