@@ -1,6 +1,6 @@
 {
   "name": "@limity/core",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Framework-agnostic rate limiting core",
   "license": "MIT",
   "author": "Limity Contributors",
