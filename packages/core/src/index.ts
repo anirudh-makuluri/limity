@@ -1,6 +1,6 @@
-import { RateLimitOptions, RateLimitResult } from './types';
-import { memoryLimiter } from './memory';
-import { hostedLimiter } from './hosted';
+import { RateLimitOptions, RateLimitResult } from './types.js';
+import { memoryLimiter } from './memory.js';
+import { hostedLimiter } from './hosted.js';
 
 export async function rateLimit(options: RateLimitOptions): Promise<RateLimitResult> {
   // Safely access process (Node.js environment)
@@ -22,6 +22,6 @@ export async function rateLimit(options: RateLimitOptions): Promise<RateLimitRes
   return memoryLimiter(options);
 }
 
-export * from './types';
-export { memoryLimiter } from './memory';
-export { hostedLimiter } from './hosted';
+export * from './types.js';
+export { memoryLimiter } from './memory.js';
+export { hostedLimiter } from './hosted.js';

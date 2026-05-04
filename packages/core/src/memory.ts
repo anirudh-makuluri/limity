@@ -1,4 +1,4 @@
-import { RateLimitOptions, RateLimitResult, WindowEntry } from './types';
+import { RateLimitOptions, RateLimitResult, WindowEntry } from './types.js';
 
 const DEFAULT_LIMIT = 100;
 const DEFAULT_WINDOW = 60;
