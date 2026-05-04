@@ -173,6 +173,7 @@ Try:
 
 Environment:
   RATE_LIMIT_API_KEY - Use hosted rate limiting (optional)
+  LIMITY_BASE_URL - Override hosted API URL (optional)
     """)
     
     app.run(debug=True, host="0.0.0.0", port=5000)

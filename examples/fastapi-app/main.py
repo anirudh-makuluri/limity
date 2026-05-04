@@ -160,6 +160,7 @@ Try:
 
 Environment:
   RATE_LIMIT_API_KEY - Use hosted rate limiting (optional)
+  LIMITY_BASE_URL - Override hosted API URL (optional)
     """)
     
     uvicorn.run(app, host="0.0.0.0", port=8000)

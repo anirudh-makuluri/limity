@@ -1,4 +1,4 @@
-import { rateLimit } from '@limity/core';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Check rate limit
-  const result = await rateLimit({
+  const result = await checkRateLimit({
     key: `create:${key}`,
     limit: 20,
     window: 60,

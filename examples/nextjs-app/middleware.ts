@@ -1,4 +1,4 @@
-import { rateLimit } from '@limity/core';
+import { checkRateLimit } from './lib/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
              'unknown';
 
   // Global rate limit (optional, adjust as needed)
-  const result = await rateLimit({
+  const result = await checkRateLimit({
     key: `global:${ip}`,
     limit: 1000,
     window: 60,

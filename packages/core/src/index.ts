@@ -4,12 +4,14 @@ import { hostedLimiter } from './hosted';
 
 export async function rateLimit(options: RateLimitOptions): Promise<RateLimitResult> {
   // Safely access process (Node.js environment)
-  const apiKey = (globalThis as any).process?.env?.RATE_LIMIT_API_KEY;
+  const env = (globalThis as any).process?.env;
+  const apiKey = env?.RATE_LIMIT_API_KEY;
+  const baseUrl = env?.LIMITY_BASE_URL;
 
   if (apiKey) {
     // Use hosted limiter with fallback to memory
     try {
-      return await hostedLimiter(options, apiKey);
+      return await hostedLimiter(options, apiKey, baseUrl);
     } catch (err) {
       (globalThis as any).console?.error?.('Hosted limiter failed, falling back to memory:', err);
       return memoryLimiter(options);

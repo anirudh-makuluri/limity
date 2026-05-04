@@ -1,4 +1,4 @@
-import { rateLimit } from '@limity/core';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
              'unknown';
 
   // Check rate limit
-  const result = await rateLimit({
+  const result = await checkRateLimit({
     key: `data:${ip}`,
     limit: 100,
     window: 60,

@@ -164,12 +164,13 @@ def rate_limit(
         ...     return error_response(429, "Too many requests")
     """
     api_key = os.getenv("RATE_LIMIT_API_KEY")
+    base_url = os.getenv("LIMITY_BASE_URL")
     
     if api_key:
         # Use hosted limiter with fallback to memory
         global _hosted_limiter
         if _hosted_limiter is None:
-            _hosted_limiter = HostedLimiter(api_key)
+            _hosted_limiter = HostedLimiter(api_key, base_url or "https://limity.smart-deploy.xyz")
         
         result = _hosted_limiter.check(key, limit, window)
         
