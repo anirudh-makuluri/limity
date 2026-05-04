@@ -47,7 +47,13 @@ func (s *Server) checkHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"error": "missing required fields"})
 		return
 	}
-	setAPIKeyFromCheckRequest(r.Context(), req.Key)
+	// Attribution key for analytics should come from Bearer API key used by SDK hosted mode.
+	if bearerKey, err := extractBearerToken(r.Header.Get("Authorization")); err == nil && bearerKey != "" {
+		setAPIKeyFromCheckRequest(r.Context(), bearerKey)
+	} else if len(req.Key) > 7 && req.Key[:7] == "limity_" {
+		// Backward-compat for manual testing where API key may be passed as body key.
+		setAPIKeyFromCheckRequest(r.Context(), req.Key)
+	}
 
 	allowed, remaining, reset, err := s.rateLimitCheck(r.Context(), req.Key, req.Limit, req.Window)
 	if err != nil {
