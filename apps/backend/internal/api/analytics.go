@@ -27,9 +27,11 @@ type AnalyticsStore interface {
 
 type AsyncAnalytics struct {
 	store         AnalyticsStore
+	metrics       *Metrics
 	events        chan RequestEvent
 	batchSize     int
 	flushInterval time.Duration
+	flushTimeout  time.Duration
 
 	stopCh chan struct{}
 	wg     sync.WaitGroup
@@ -37,7 +39,7 @@ type AsyncAnalytics struct {
 	ownerByAPIKey map[string]string
 }
 
-func NewAsyncAnalytics(store AnalyticsStore, queueSize, batchSize int, flushInterval time.Duration) *AsyncAnalytics {
+func NewAsyncAnalytics(store AnalyticsStore, metrics *Metrics, queueSize, batchSize int, flushInterval, flushTimeout time.Duration) *AsyncAnalytics {
 	if queueSize <= 0 {
 		queueSize = 10000
 	}
@@ -47,12 +49,17 @@ func NewAsyncAnalytics(store AnalyticsStore, queueSize, batchSize int, flushInte
 	if flushInterval <= 0 {
 		flushInterval = time.Second
 	}
+	if flushTimeout <= 0 {
+		flushTimeout = 15 * time.Second
+	}
 
 	a := &AsyncAnalytics{
 		store:         store,
+		metrics:       metrics,
 		events:        make(chan RequestEvent, queueSize),
 		batchSize:     batchSize,
 		flushInterval: flushInterval,
+		flushTimeout:  flushTimeout,
 		stopCh:        make(chan struct{}),
 		ownerByAPIKey: make(map[string]string),
 	}
@@ -85,7 +92,7 @@ func (a *AsyncAnalytics) run() {
 		if len(batch) == 0 {
 			return
 		}
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), a.flushTimeout)
 		a.enrichOwnerUserIDs(ctx, batch)
 		err := a.store.InsertRequestEvents(ctx, batch)
 		cancel()
@@ -119,14 +126,38 @@ func (a *AsyncAnalytics) enrichOwnerUserIDs(ctx context.Context, batch []Request
 
 		if cached, ok := a.ownerByAPIKey[batch[i].APIKey]; ok {
 			batch[i].OwnerUserID = cached
+			if a.metrics != nil {
+				a.metrics.ownerLookupSuccessTotal.Inc()
+			}
 			continue
 		}
 
 		ownerUserID, err := a.store.ResolveOwnerUserIDByAPIKey(ctx, batch[i].APIKey)
-		if err != nil || ownerUserID == "" {
+		if err != nil {
+			log.Printf("analytics owner lookup error for /check event: %v", err)
+			if a.metrics != nil {
+				a.metrics.ownerLookupErrorTotal.Inc()
+			}
+			continue
+		}
+		if ownerUserID == "" {
+			log.Printf("analytics owner lookup miss for /check event key prefix=%s", safeKeyPrefix(batch[i].APIKey))
+			if a.metrics != nil {
+				a.metrics.ownerLookupMissTotal.Inc()
+			}
 			continue
 		}
 		a.ownerByAPIKey[batch[i].APIKey] = ownerUserID
 		batch[i].OwnerUserID = ownerUserID
+		if a.metrics != nil {
+			a.metrics.ownerLookupSuccessTotal.Inc()
+		}
 	}
+}
+
+func safeKeyPrefix(apiKey string) string {
+	if len(apiKey) <= 12 {
+		return apiKey
+	}
+	return apiKey[:12]
 }

@@ -17,6 +17,7 @@ Go backend for rate-limiting checks and user profile/API key retrieval.
 - `ANALYTICS_QUEUE_SIZE` - default `10000`
 - `ANALYTICS_BATCH_SIZE` - default `200`
 - `ANALYTICS_FLUSH_INTERVAL_MS` - default `1000`
+- `ANALYTICS_FLUSH_TIMEOUT_MS` - default `15000`
 - `API_KEY_GAUGE_REFRESH_SEC` - default `60`
 
 3. Run:
@@ -68,6 +69,9 @@ Prometheus metrics include:
 - `limity_redis_errors_total`
 - `limity_auth_failures_total`
 - `analytics_events_dropped_total`
+- `limity_owner_lookup_success_total`
+- `limity_owner_lookup_miss_total`
+- `limity_owner_lookup_error_total`
 
 Useful PromQL for `/check`:
 

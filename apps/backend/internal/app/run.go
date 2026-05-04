@@ -55,9 +55,11 @@ func Run() error {
 	if analyticsEnabled && db != nil {
 		analytics = api.NewAsyncAnalytics(
 			pgStore,
+			metrics,
 			envInt("ANALYTICS_QUEUE_SIZE", 10000),
 			envInt("ANALYTICS_BATCH_SIZE", 200),
 			time.Duration(envInt("ANALYTICS_FLUSH_INTERVAL_MS", 1000))*time.Millisecond,
+			time.Duration(envInt("ANALYTICS_FLUSH_TIMEOUT_MS", 15000))*time.Millisecond,
 		)
 		defer analytics.Close()
 	} else if analyticsEnabled && db == nil {

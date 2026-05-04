@@ -19,6 +19,9 @@ type Metrics struct {
 	apiKeysTotal            prometheus.Gauge
 	redisErrorsTotal        prometheus.Counter
 	authFailuresTotal       prometheus.Counter
+	ownerLookupSuccessTotal prometheus.Counter
+	ownerLookupMissTotal    prometheus.Counter
+	ownerLookupErrorTotal   prometheus.Counter
 }
 
 func NewMetrics() *Metrics {
@@ -51,6 +54,15 @@ func NewMetrics() *Metrics {
 		authFailuresTotal: prometheus.NewCounter(
 			prometheus.CounterOpts{Name: "limity_auth_failures_total", Help: "Total auth failures."},
 		),
+		ownerLookupSuccessTotal: prometheus.NewCounter(
+			prometheus.CounterOpts{Name: "limity_owner_lookup_success_total", Help: "Total successful owner lookups by API key."},
+		),
+		ownerLookupMissTotal: prometheus.NewCounter(
+			prometheus.CounterOpts{Name: "limity_owner_lookup_miss_total", Help: "Total owner lookup misses by API key."},
+		),
+		ownerLookupErrorTotal: prometheus.NewCounter(
+			prometheus.CounterOpts{Name: "limity_owner_lookup_error_total", Help: "Total owner lookup errors by API key."},
+		),
 	}
 
 	collectors := []prometheus.Collector{
@@ -61,6 +73,9 @@ func NewMetrics() *Metrics {
 		m.apiKeysTotal,
 		m.redisErrorsTotal,
 		m.authFailuresTotal,
+		m.ownerLookupSuccessTotal,
+		m.ownerLookupMissTotal,
+		m.ownerLookupErrorTotal,
 	}
 	for _, c := range collectors {
 		_ = prometheus.Register(c)
