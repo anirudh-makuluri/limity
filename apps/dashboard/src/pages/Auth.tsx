@@ -21,7 +21,7 @@ export default function AuthPage() {
     try {
       if (mode === 'signin') {
         await signInWithPassword(email, password)
-        navigate('/dashboard')
+        navigate('/home')
       } else {
         await signUpWithPassword(email, password)
         setMessage('Account created. Check your inbox for email confirmation.')

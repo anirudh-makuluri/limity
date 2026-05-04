@@ -1,130 +1,130 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import * as keysAPI from '~/api/keys'
+import { Activity, Database, Shield } from 'lucide-react'
 import { useAuth } from '~/lib/useAuth'
+import type { MeResponse } from '~/api/keys'
+import ApiKeyEnvSnippet from '~/components/ApiKeyEnvSnippet'
 
-export default function HomePage() {
-  const { isLoading } = useAuth()
-  const [viewport, setViewport] = useState({ width: 800, height: 600 })
+export default function DashboardPage() {
+  const { isLoading, isAuthenticated, user, getAccessToken } = useAuth()
+  const navigate = useNavigate()
+  const [me, setMe] = useState<MeResponse | null>(null)
+  const [isLoadingMe, setIsLoadingMe] = useState(true)
+  const [isRefreshingKey, setIsRefreshingKey] = useState(false)
 
   useEffect(() => {
-    const updateViewport = () => {
-      setViewport({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      })
+    if (!isLoading && !isAuthenticated) {
+      navigate('/')
     }
+  }, [isLoading, isAuthenticated, navigate])
 
-    updateViewport()
-    window.addEventListener('resize', updateViewport)
-    return () => window.removeEventListener('resize', updateViewport)
-  }, [])
+  // Load existing keys from backend
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      loadMe()
+    }
+  }, [isAuthenticated, user?.id])
 
-  if (isLoading) {
-    return <div className="retro-window p-8 text-center">Booting homepage...</div>
+  const loadMe = async () => {
+    try {
+      setIsLoadingMe(true)
+      const accessToken = await getAccessToken()
+      const userProfile = await keysAPI.getMe(accessToken)
+      setMe(userProfile)
+    } catch (error) {
+      console.error('Failed to load user profile:', error)
+      setMe(null)
+    } finally {
+      setIsLoadingMe(false)
+    }
   }
+
+  const handleRefreshKey = async () => {
+    try {
+      setIsRefreshingKey(true)
+      const accessToken = await getAccessToken()
+      const updatedProfile = await keysAPI.refreshApiKey(accessToken)
+      setMe(updatedProfile)
+    } catch (error) {
+      console.error('Failed to refresh API key:', error)
+    } finally {
+      setIsRefreshingKey(false)
+    }
+  }
+
+  if (isLoading || isLoadingMe) {
+    return <div className="retro-window p-8 text-center">Booting dashboard...</div>
+  }
+  const primaryKey = me?.api_key ?? ''
+
+  const titleBar = (name: string, icon?: React.ReactNode) => (
+    <div className="retro-titlebar">
+      <span className="retro-title-text">{icon}{name}</span>
+      <span className="retro-window-controls" aria-hidden>
+        <i>_</i><i>□</i><i>X</i>
+      </span>
+    </div>
+  )
 
   return (
-    <section className="retro-landing retro-landing-fit">
-      <div className="retro-landing-hero">
-        <div className="retro-hero-copy">
-          <div className="retro-pill" aria-label="New version announcement">
-            <div className="retro-pill-track">
-              <span>*** NEW! VERSION 0.1 IS HERE! ***</span>
-            </div>
-          </div>
-          <h2 className="retro-hero-title alt">
-            Rate Limiting,<br />
-            <em>Reimagined</em> for<br />
-            Developers
-          </h2>
-          <p className="retro-hero-sub alt">
-            Experience ~1ms latency with zero-config memory-based limiting.
-            Built for high-velocity engineering teams who demand precision and performance.
-            <strong> Compatible with all major browsers!</strong>
-          </p>
-          <div className="retro-cta-row">
-            <button className="retro-cta">DOWNLOAD NOW</button>
-            <button className="retro-cta secondary">Help Contents</button>
-          </div>
-          <ul className="retro-bullets">
-            <li>ULTRA LOW LATENCY SYSTEM</li>
-            <li>IN-MEMORY SPEED TECHNOLOGY</li>
-          </ul>
+    <div className="retro-desktop">
+      <aside className="retro-sidebar">
+        <h2 className="retro-sidebar-title">System</h2>
+        <p className="retro-sidebar-subtitle">v0.0.1</p>
+        <div className="retro-side-actions">
+          <button className="retro-side-button">My Computer</button>
+          <button className="retro-side-button">Network</button>
+          <button className="retro-side-button">API Keys</button>
+          <button className="retro-side-button">Usage</button>
         </div>
+      </aside>
 
-        <div className="retro-hero-code-col">
-          <article className="retro-window">
-            <div className="retro-titlebar">
-              <span className="retro-title-text">C:\WINDOWS\NOTEPAD.EXE - integration.ts</span>
-              <span className="retro-window-controls" aria-hidden><i>_</i><i>□</i><i>X</i></span>
-            </div>
+      <section className="retro-workspace">
+        <div className="retro-grid-top">
+          <div className="retro-window">
+            {titleBar('Security_Properties.sec', <Shield size={14} />)}
             <div className="retro-window-body">
-              <pre className="retro-code terminal">{`C:\\> import { Limity } from '@limity/core';
-
-// Initialize with ~1ms latency overhead
-const limiter = new Limity({
-  rate: 10,
-  window: '1m',
-  strategy: 'sliding-window'
-});
-
-// Seamless middleware integration
-export const middleware = async (req, res) => {
-  const { success } = await limiter.check(req.ip);
-
-  if (!success) {
-    return res.status(429).json({ error: 'Limit exceeded' });
-  }
-};`}</pre>
+              <p className="retro-lead">Your personal API access credentials. Keep these secret.</p>
+              <label className="retro-field-label">Your API Key:</label>
+              <div className="retro-key-row">
+                <div className="retro-key-mask">{primaryKey || 'No key available'}</div>
+              </div>
             </div>
-          </article>
-          <div className="retro-stats-row">
-            <div className="retro-stat-box">
-              <strong>0.82ms</strong>
-              <span>AVERAGE SPEED</span>
+          </div>
+
+          <div className="retro-stack">
+            <div className="retro-window compact">
+              {titleBar('NODE_HEALTH')}
+              <div className="retro-window-body">
+                <div className="retro-status-item"><span><Database size={14} /> Core API</span><i className="dot green" /></div>
+                <div className="retro-status-item"><span><Shield size={14} /> DB Cluster</span><i className="dot green" /></div>
+                <div className="retro-status-item"><span><Activity size={14} /> Worker A</span><i className={`dot ${primaryKey ? 'green' : 'red'}`} /></div>
+              </div>
             </div>
-            <div className="retro-stat-box">
-              <strong>10M+</strong>
-              <span>HITS PER SEC</span>
+            <div className="retro-window compact">
+              {titleBar('OPS_LOG.TXT')}
+              <div className="retro-window-body retro-log-body">
+                <p>[14:00:01] System initializing...</p>
+                <p>[14:00:12] Auth handshake complete</p>
+                <p>[14:01:11] Key registry in sync</p>
+                <p>[14:02:10] {primaryKey ? '1 key on record' : '0 keys on record'}</p>
+              </div>
             </div>
           </div>
         </div>
+        <ApiKeyEnvSnippet
+          apiKey={primaryKey}
+          onRefresh={handleRefreshKey}
+          isRefreshing={isRefreshingKey}
+        />
+      </section>
+      <div className="retro-taskbar absolute bottom-0 left-0 right-0 flex items-center gap-4 px-4 py-2 bg-gray-800 text-white">
+        <button className="retro-start">Start</button>
+        <span className="retro-task-item">Terminal</span>
+        <span className="retro-task-item">Keys</span>
+        <span className="retro-task-clock">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
       </div>
-
-      <div className="retro-feature-grid alt">
-        <article className="retro-window">
-          <div className="retro-window-body">
-            <h3>Zero-Config</h3>
-            <p>Drop-in memory-based limiting that scales horizontally without external DB dependencies.</p>
-          </div>
-        </article>
-        <article className="retro-window">
-          <div className="retro-window-body">
-            <h3>Total Control</h3>
-            <p>Native monitoring support and precise thresholds so your team stays fully in charge.</p>
-          </div>
-        </article>
-        <article className="retro-window">
-          <div className="retro-window-body">
-            <h3>Options</h3>
-            <p>Switch between Token Bucket, Sliding Window, and Leaky Bucket with one-line config.</p>
-          </div>
-        </article>
-      </div>
-
-      <footer className="retro-site-footer">
-        <div>
-          <h4>Limity Engineering Corp.</h4>
-          <p>
-            Copyright © {new Date().getFullYear()} Limity. All Rights Reserved. Optimized for {viewport.width}x{viewport.height} resolution.
-          </p>
-        </div>
-        {/* <nav>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Use</a>
-          <a href="#">Site Map</a>
-          <a href="#">Webmaster</a>
-        </nav> */}
-      </footer>
-    </section>
+    </div>
   )
 }

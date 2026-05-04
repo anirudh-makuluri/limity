@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '~/lib/useAuth'
 
 interface LayoutProps {
@@ -9,6 +9,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const { logout, user, isLoading } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   return (
     <div className="retro-shell">
@@ -28,12 +29,21 @@ export default function Layout({ children }: LayoutProps) {
               ) : user ? (
                 <div className="retro-user-controls">
                   <span className="retro-user-text">{user.email}</span>
-                  <button
-                    onClick={() => logout()}
-                    className="retro-button"
-                  >
-                    Logout
-                  </button>
+                  {location.pathname === '/' ? (
+                    <button
+                      onClick={() => navigate('/home')}
+                      className="retro-button"
+                    >
+                      Home
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => logout()}
+                      className="retro-button"
+                    >
+                      Logout
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="retro-user-controls">
