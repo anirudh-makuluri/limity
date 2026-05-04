@@ -71,7 +71,7 @@ result = rate_limit("key")  # Uses in-memory dict
 
 ### Hosted
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 ```
 ```python
 result = rate_limit("key")  # Uses API with fallback

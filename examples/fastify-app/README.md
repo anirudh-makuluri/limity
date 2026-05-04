@@ -177,7 +177,7 @@ fastify.addHook('onRequest', async (request, reply) => {
 ### Optional: Use Hosted Rate Limiting
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 pnpm dev
 ```
 
@@ -212,7 +212,7 @@ tsconfig.json
 2. Test endpoints: `curl http://localhost:3000/api/data`
 3. Trigger rate limits: spam requests
 4. Check headers: `curl -i http://localhost:3000/api/data`
-5. Deploy and scale with `RATE_LIMIT_API_KEY`
+5. Deploy and scale with `LIMITY_API_KEY`
 
 ---
 

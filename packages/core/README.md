@@ -57,7 +57,7 @@ Uses a remote hosted service. Perfect for:
 - Shared rate limiting across services
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 ```
 
 Then use the same code - it automatically switches to hosted mode:
@@ -147,10 +147,10 @@ const apiResult = await rateLimit({
 
 ### Environment Variables
 
-- **`RATE_LIMIT_API_KEY`** (optional) - API key for hosted mode. If not set, uses memory mode.
+- **`LIMITY_API_KEY`** (optional) - API key for hosted mode. If not set, uses memory mode.
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 ```
 
 ### Default Values

@@ -169,7 +169,7 @@ Fast, in-process rate limiting using dict.
 
 ```python
 result = rate_limit("user:123")
-# Uses memory (no RATE_LIMIT_API_KEY set)
+# Uses memory (no LIMITY_API_KEY set)
 ```
 
 **Pros:**
@@ -188,7 +188,7 @@ result = rate_limit("user:123")
 Scale across multiple instances using hosted API.
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 ```
 
 Then:
@@ -221,12 +221,12 @@ This ensures your app stays up even if the rate limiter fails.
 
 ## Environment
 
-### `RATE_LIMIT_API_KEY`
+### `LIMITY_API_KEY`
 
 API key for hosted rate limiting. If set, enables hosted mode with automatic fallback.
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 ```
 
 Without it, uses memory limiter.

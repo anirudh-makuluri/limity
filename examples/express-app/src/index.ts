@@ -104,10 +104,10 @@ Try these commands:
   for i in {1..15}; do curl http://localhost:${PORT}/api/data; done
 
 Environment Variables:
-  - RATE_LIMIT_API_KEY    Use hosted rate limiting
+  - LIMITY_API_KEY    Use hosted rate limiting
   - LIMITY_BASE_URL       Override hosted API URL (optional)
   - PORT                  Server port (default: 3000)
 
-Without RATE_LIMIT_API_KEY, uses fast in-memory rate limiter.
+Without LIMITY_API_KEY, uses fast in-memory rate limiter.
   `);
 });

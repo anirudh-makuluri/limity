@@ -70,10 +70,10 @@ Edit `src/index.ts` to customize:
 
 ## Production Usage
 
-Set `RATE_LIMIT_API_KEY` to use hosted rate limiting:
+Set `LIMITY_API_KEY` to use hosted rate limiting:
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 pnpm dev
 ```
 

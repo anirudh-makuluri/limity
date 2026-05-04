@@ -168,7 +168,7 @@ const result = await rateLimit({
 
 ```bash
 # .env.local
-NEXT_PUBLIC_RATE_LIMIT_API_KEY=your_api_key
+NEXT_PUBLIC_LIMITY_API_KEY=your_api_key
 ```
 
 Then the app will:
@@ -180,7 +180,7 @@ Then the app will:
 
 ### Vercel (Native Support)
 ```bash
-vercel env add RATE_LIMIT_API_KEY
+vercel env add LIMITY_API_KEY
 vercel deploy
 ```
 
@@ -283,7 +283,7 @@ next.config.js
 3. Check response headers with `curl -i`
 4. Add your own endpoints
 5. Deploy to Vercel or your host
-6. Set `RATE_LIMIT_API_KEY` for hosted mode
+6. Set `LIMITY_API_KEY` for hosted mode
 
 ---
 

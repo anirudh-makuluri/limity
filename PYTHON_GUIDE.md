@@ -445,7 +445,7 @@ response.headers["Retry-After"] = str(result.reset - time.time())
 ### Enable Hosted Rate Limiting
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 python app.py
 ```
 

@@ -173,7 +173,7 @@ export default {
 
 ```bash
 # Enable hosted mode (connect to backend API)
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 
 # Optional: custom API URL (if self-hosted)
 export RATE_LIMIT_API_URL=http://localhost:8080
@@ -189,7 +189,7 @@ const result = await rateLimit({ key: 'user:123' });
 
 **Hosted Mode**
 ```bash
-export RATE_LIMIT_API_KEY=abc123
+export LIMITY_API_KEY=abc123
 ```
 ```typescript
 const result = await rateLimit({ key: 'user:123' });
@@ -306,7 +306,7 @@ async def add_rate_limit_headers(request: Request, call_next):
 - [ ] Import in your app
 - [ ] Add rate limiting middleware
 - [ ] Set rate limits per endpoint
-- [ ] (Optional) Set `RATE_LIMIT_API_KEY` for hosted mode
+- [ ] (Optional) Set `LIMITY_API_KEY` for hosted mode
 - [ ] Test: flood endpoint and verify 429 responses
 - [ ] Deploy with proper limits
 

@@ -163,7 +163,7 @@ def rate_limit(
         >>> if not result.allowed:
         ...     return error_response(429, "Too many requests")
     """
-    api_key = os.getenv("RATE_LIMIT_API_KEY")
+    api_key = os.getenv("LIMITY_API_KEY") or os.getenv("RATE_LIMIT_API_KEY")
     base_url = os.getenv("LIMITY_BASE_URL")
     
     if api_key:

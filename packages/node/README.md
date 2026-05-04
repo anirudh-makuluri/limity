@@ -176,10 +176,10 @@ app.get('/api/example', (req, res) => {
 
 ### Environment Variables
 
-- **`RATE_LIMIT_API_KEY`** (optional) - API key for hosted mode. If not set, uses memory mode.
+- **`LIMITY_API_KEY`** (optional) - API key for hosted mode. If not set, uses memory mode.
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 ```
 
 ## Memory vs Hosted Mode
@@ -199,7 +199,7 @@ Perfect for:
 ### Hosted Mode (With API Key)
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 ```
 
 Perfect for:

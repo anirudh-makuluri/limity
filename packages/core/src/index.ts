@@ -5,7 +5,7 @@ import { hostedLimiter } from './hosted';
 export async function rateLimit(options: RateLimitOptions): Promise<RateLimitResult> {
   // Safely access process (Node.js environment)
   const env = (globalThis as any).process?.env;
-  const apiKey = env?.RATE_LIMIT_API_KEY;
+  const apiKey = env?.LIMITY_API_KEY ?? env?.RATE_LIMIT_API_KEY;
   const baseUrl = env?.LIMITY_BASE_URL;
 
   if (apiKey) {

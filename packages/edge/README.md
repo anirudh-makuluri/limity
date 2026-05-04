@@ -208,10 +208,10 @@ export const config = { runtime: 'edge' };
 
 ### Environment Variables
 
-- **`RATE_LIMIT_API_KEY`** (optional) - API key for hosted mode. If not set, uses memory mode.
+- **`LIMITY_API_KEY`** (optional) - API key for hosted mode. If not set, uses memory mode.
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 ```
 
 ## Memory vs Hosted Mode
@@ -231,7 +231,7 @@ Uses a remote hosted service. Perfect for:
 - Consistent limits across all edge locations
 
 ```bash
-export RATE_LIMIT_API_KEY=your_api_key
+export LIMITY_API_KEY=your_api_key
 ```
 
 ## When to Use

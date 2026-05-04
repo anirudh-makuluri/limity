@@ -172,7 +172,7 @@ Try:
   for i in {1..15}; do curl http://localhost:5000/api/data; done
 
 Environment:
-  RATE_LIMIT_API_KEY - Use hosted rate limiting (optional)
+  LIMITY_API_KEY - Use hosted rate limiting (optional)
   LIMITY_BASE_URL - Override hosted API URL (optional)
     """)
     

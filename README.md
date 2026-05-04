@@ -37,7 +37,10 @@ Developer-first rate limiting tool. Built for simplicity and performance.
 - `examples/django-app` - Django example
 
 ### Go
-- `apps/api` - Go API backend
+- `apps/backend` - Go API backend
+
+### Apps
+- `apps/dashboard` - React dashboard for auth + API key management
 
 ## 🚀 Quick Start
 
@@ -58,6 +61,8 @@ if (!result.allowed) {
   return error(429, 'Too many requests');
 }
 ```
+
+`window` is in **seconds** (for example, `window: 60` = 1 minute).
 
 **For Express.js (automatic IP rate limiting):**
 
@@ -105,13 +110,16 @@ if not result.allowed:
   return error(429, 'Too many requests')
 ```
 
+`window` is in **seconds** here as well.
+
 Both support **memory mode** (default) and **hosted mode** (with API key).
 
 Default: 100 requests per 60 seconds per IP.
+All `window` values across SDKs are in **seconds**.
 
 ## 🔌 Environment Variables
 
-- `RATE_LIMIT_API_KEY` - Optional. Enables hosted rate limiting
+- `LIMITY_API_KEY` - Optional. Enables hosted rate limiting
 
 ## 📊 Response Format
 
