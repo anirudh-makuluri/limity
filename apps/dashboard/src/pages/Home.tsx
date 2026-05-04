@@ -71,7 +71,7 @@ export default function DashboardPage() {
     <div className="retro-desktop">
       <aside className="retro-sidebar">
         <h2 className="retro-sidebar-title">System</h2>
-        <p className="retro-sidebar-subtitle">v0.0.1</p>
+        <p className="retro-sidebar-subtitle">v0.1.2</p>
         <div className="retro-side-actions">
           <button className="retro-side-button">My Computer</button>
           <button className="retro-side-button">Network</button>

@@ -28,7 +28,7 @@ export default function HomePage() {
         <div className="retro-hero-copy">
           <div className="retro-pill" aria-label="New version announcement">
             <div className="retro-pill-track">
-              <span>*** NEW! VERSION 0.1.1 IS HERE! ***</span>
+              <span>*** NEW! VERSION 0.1.2 IS HERE! ***</span>
             </div>
           </div>
           <h2 className="retro-hero-title alt">
