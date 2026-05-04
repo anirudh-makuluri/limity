@@ -2,8 +2,10 @@ package api
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -108,16 +110,17 @@ func (s *Server) ObservabilityMiddleware(next http.Handler) http.Handler {
 
 		if s.analytics != nil && r.URL.Path != "/health" {
 			enqueued := s.analytics.Enqueue(RequestEvent{
-				Timestamp:      time.Now().UTC(),
-				Method:         method,
-				Route:          route,
-				Path:           r.URL.Path,
-				StatusCode:     rw.statusCode,
-				DurationMs:     time.Since(start).Milliseconds(),
-				ClientIP:       r.RemoteAddr,
-				UserAgent:      r.UserAgent(),
-				OwnerUserID:    getOwnerUserID(r.Context()),
-				APIKey:         getAPIKeyFromCheckRequest(r.Context()),
+				Timestamp:   time.Now().UTC(),
+				Method:      method,
+				Route:       route,
+				Path:        r.URL.Path,
+				StatusCode:  rw.statusCode,
+				DurationMs:  time.Since(start).Milliseconds(),
+				ClientIP:    requestClientIP(r),
+				Country:     requestCountry(r),
+				UserAgent:   r.UserAgent(),
+				OwnerUserID: getOwnerUserID(r.Context()),
+				APIKey:      getAPIKeyFromCheckRequest(r.Context()),
 			})
 			if !enqueued {
 				s.metrics.analyticsDroppedTotal.Inc()
@@ -166,4 +169,43 @@ func routePattern(r *http.Request) string {
 		}
 	}
 	return r.URL.Path
+}
+
+func requestCountry(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
+	for _, header := range []string{"CF-IPCountry", "X-Vercel-IP-Country", "X-Country-Code"} {
+		if value := r.Header.Get(header); value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func requestClientIP(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
+	for _, header := range []string{"CF-Connecting-IP", "X-Real-IP", "X-Forwarded-For"} {
+		value := strings.TrimSpace(r.Header.Get(header))
+		if value == "" {
+			continue
+		}
+		if header == "X-Forwarded-For" {
+			parts := strings.Split(value, ",")
+			if len(parts) > 0 {
+				value = strings.TrimSpace(parts[0])
+			}
+		}
+		if value != "" {
+			return value
+		}
+	}
+
+	host, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
+	if err == nil {
+		return host
+	}
+	return strings.TrimSpace(r.RemoteAddr)
 }

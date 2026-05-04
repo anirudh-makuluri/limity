@@ -1,12 +1,12 @@
 package postgres
 
 import (
-	"crypto/rand"
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
-	"fmt"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -122,14 +122,14 @@ func (s *Store) InsertRequestEvents(ctx context.Context, events []api.RequestEve
 	}
 
 	var b strings.Builder
-	args := make([]any, 0, len(events)*9)
-	b.WriteString(`INSERT INTO request_events (timestamp, method, route, path, status_code, duration_ms, client_ip, user_agent, owner_user_id) VALUES `)
+	args := make([]any, 0, len(events)*10)
+	b.WriteString(`INSERT INTO request_events (timestamp, method, route, path, status_code, duration_ms, client_ip, country, user_agent, owner_user_id) VALUES `)
 
 	for i, e := range events {
 		if i > 0 {
 			b.WriteString(",")
 		}
-		offset := i*9 + 1
+		offset := i*10 + 1
 		b.WriteString("(")
 		b.WriteString("$" + strconv.Itoa(offset))
 		b.WriteString(",$" + strconv.Itoa(offset+1))
@@ -140,6 +140,7 @@ func (s *Store) InsertRequestEvents(ctx context.Context, events []api.RequestEve
 		b.WriteString(",$" + strconv.Itoa(offset+6))
 		b.WriteString(",$" + strconv.Itoa(offset+7))
 		b.WriteString(",$" + strconv.Itoa(offset+8))
+		b.WriteString(",$" + strconv.Itoa(offset+9))
 		b.WriteString(")")
 
 		args = append(args,
@@ -150,6 +151,7 @@ func (s *Store) InsertRequestEvents(ctx context.Context, events []api.RequestEve
 			e.StatusCode,
 			e.DurationMs,
 			e.ClientIP,
+			e.Country,
 			e.UserAgent,
 			e.OwnerUserID,
 		)

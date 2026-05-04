@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS request_events (
   status_code INT NOT NULL,
   duration_ms BIGINT NOT NULL,
   client_ip TEXT,
+  country TEXT,
   user_agent TEXT,
   owner_user_id TEXT
 );
@@ -42,6 +43,8 @@ BEGIN
     ALTER TABLE request_events RENAME COLUMN external_user_id TO owner_user_id;
   END IF;
 END$$;
+
+ALTER TABLE request_events ADD COLUMN IF NOT EXISTS country TEXT;
 
 CREATE INDEX IF NOT EXISTS request_events_timestamp_idx ON request_events(timestamp DESC);
 CREATE INDEX IF NOT EXISTS request_events_route_timestamp_idx ON request_events(route, timestamp DESC);

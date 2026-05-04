@@ -2,22 +2,29 @@ package api
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"log"
+	"net"
+	"net/http"
+	"net/netip"
+	"strings"
 	"sync"
 	"time"
 )
 
 type RequestEvent struct {
-	Timestamp      time.Time
-	Method         string
-	Route          string
-	Path           string
-	StatusCode     int
-	DurationMs     int64
-	ClientIP       string
-	UserAgent      string
-	OwnerUserID    string
-	APIKey         string
+	Timestamp   time.Time
+	Method      string
+	Route       string
+	Path        string
+	StatusCode  int
+	DurationMs  int64
+	ClientIP    string
+	Country     string
+	UserAgent   string
+	OwnerUserID string
+	APIKey      string
 }
 
 type AnalyticsStore interface {
@@ -37,6 +44,8 @@ type AsyncAnalytics struct {
 	wg     sync.WaitGroup
 
 	ownerByAPIKey map[string]string
+	countryByIP   map[string]string
+	geoHTTPClient *http.Client
 }
 
 func NewAsyncAnalytics(store AnalyticsStore, metrics *Metrics, queueSize, batchSize int, flushInterval, flushTimeout time.Duration) *AsyncAnalytics {
@@ -62,6 +71,8 @@ func NewAsyncAnalytics(store AnalyticsStore, metrics *Metrics, queueSize, batchS
 		flushTimeout:  flushTimeout,
 		stopCh:        make(chan struct{}),
 		ownerByAPIKey: make(map[string]string),
+		countryByIP:   make(map[string]string),
+		geoHTTPClient: &http.Client{Timeout: 2 * time.Second},
 	}
 	a.wg.Add(1)
 	go a.run()
@@ -94,6 +105,7 @@ func (a *AsyncAnalytics) run() {
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), a.flushTimeout)
 		a.enrichOwnerUserIDs(ctx, batch)
+		a.enrichCountries(ctx, batch)
 		err := a.store.InsertRequestEvents(ctx, batch)
 		cancel()
 		if err != nil {
@@ -116,6 +128,100 @@ func (a *AsyncAnalytics) run() {
 			}
 		}
 	}
+}
+
+func (a *AsyncAnalytics) enrichCountries(ctx context.Context, batch []RequestEvent) {
+	for i := range batch {
+		if strings.TrimSpace(batch[i].Country) != "" {
+			continue
+		}
+		clientIP := strings.TrimSpace(batch[i].ClientIP)
+		if clientIP == "" {
+			continue
+		}
+
+		if cached, ok := a.countryByIP[clientIP]; ok {
+			batch[i].Country = cached
+			continue
+		}
+
+		country, ok := a.lookupCountryByIP(ctx, clientIP)
+		if !ok {
+			continue
+		}
+		a.countryByIP[clientIP] = country
+		batch[i].Country = country
+	}
+}
+
+func (a *AsyncAnalytics) lookupCountryByIP(ctx context.Context, ip string) (string, bool) {
+	addr, ok := parseIP(ip)
+	if !ok || !addr.IsGlobalUnicast() || addr.IsPrivate() || addr.IsLoopback() {
+		return "", false
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://ipapi.co/"+addr.String()+"/country/", nil)
+	if err != nil {
+		return "", false
+	}
+	resp, err := a.geoHTTPClient.Do(req)
+	if err == nil && resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
+		if resp.StatusCode == http.StatusOK {
+			body, readErr := io.ReadAll(resp.Body)
+			if readErr == nil {
+				countryCode := strings.ToUpper(strings.TrimSpace(string(body)))
+				if len(countryCode) == 2 {
+					return countryCode, true
+				}
+			}
+		}
+	}
+
+	req, err = http.NewRequestWithContext(ctx, http.MethodGet, "https://ipwho.is/"+addr.String(), nil)
+	if err != nil {
+		return "", false
+	}
+	resp, err = a.geoHTTPClient.Do(req)
+	if err != nil {
+		return "", false
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", false
+	}
+
+	var payload struct {
+		CountryCode string `json:"country_code"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+		return "", false
+	}
+	countryCode := strings.ToUpper(strings.TrimSpace(payload.CountryCode))
+	if len(countryCode) != 2 {
+		return "", false
+	}
+	return countryCode, true
+}
+
+func parseIP(value string) (netip.Addr, bool) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return netip.Addr{}, false
+	}
+	if addr, err := netip.ParseAddr(value); err == nil {
+		return addr, true
+	}
+
+	host, _, err := net.SplitHostPort(value)
+	if err != nil {
+		return netip.Addr{}, false
+	}
+	addr, err := netip.ParseAddr(host)
+	if err != nil {
+		return netip.Addr{}, false
+	}
+	return addr, true
 }
 
 func (a *AsyncAnalytics) enrichOwnerUserIDs(ctx context.Context, batch []RequestEvent) {
