@@ -1,141 +1,81 @@
 # Limity
 
-Developer-first rate limiting tool. Built for simplicity and performance.
+Reliable, developer-first rate limiting for Node, Edge, and Python.
 
-**Works everywhere:** TypeScript/JavaScript, Python, Go.
+[![CI](https://github.com/anirudh-makuluri/limity/actions/workflows/ci.yml/badge.svg)](https://github.com/anirudh-makuluri/limity/actions/workflows/ci.yml)
 
-## 🎯 Features
+Limity is focused on one thing first: predictable behavior in production.
 
-- **In-memory by default** - Zero setup, works immediately
-- **Auto-upgrade to hosted** - Set an API key, instantly scales
-- **Consistent API** - Same logic everywhere (TypeScript, Python, Go)
-- **Minimal overhead** - ~1ms latency with memory limiter
-- **Production-ready** - Clean code, proper error handling
-- **Framework agnostic** - Use with any framework
+## Reliability Signals
 
-## 📦 Packages
+- Versioned releases with changelog and upgrade guidance.
+- CI on every push and pull request.
+- Core tests include boundary and concurrency scenarios.
+- Explicit algorithm and tradeoff documentation.
 
-### TypeScript/JavaScript
+## Packages
 
-**Choose the package that fits your use case:**
+| Package | Purpose | Use When |
+| --- | --- | --- |
+| `@limity/core` | Rate limiting engine | You want direct control over keys/limits/windows |
+| `@limity/node` | Express middleware | You need route-level protection in Node APIs |
+| `@limity/edge` | Edge helper | You run on Vercel/Cloudflare/Workers-like runtimes |
+| `limity` (Python) | Python SDK | You build Flask/FastAPI/Django services |
 
-| Package | Use Case | Best For |
-|---------|----------|----------|
-| **[@limity/core](./packages/core)** | Direct rate limiting logic | Libraries, SDKs, custom implementations |
-| **[@limity/node](./packages/node)** | Express middleware | Express.js applications |
-| **[@limity/edge](./packages/edge)** | Edge functions & serverless | Vercel, Cloudflare, Deno Deploy |
+## Quick Start
 
-**Examples:**
-- `examples/express-app` - Express.js usage
-- `examples/nextjs-app` - Next.js usage
-- `examples/fastify-app` - Fastify usage
-
-### Python
-- `packages/python` - Pure Python SDK (zero dependencies)
-- `examples/fastapi-app` - FastAPI example
-- `examples/flask-app` - Flask example
-- `examples/django-app` - Django example
-
-### Go
-- `apps/backend` - Go API backend
-
-### Apps
-- `apps/dashboard` - React dashboard for auth + API key management
-
-## 🚀 Quick Start
-
-### TypeScript/JavaScript
-
-**For basic rate limiting:**
-
-```typescript
+```ts
 import { rateLimit } from '@limity/core';
 
-const result = await rateLimit({
-  key: 'user:123',
-  limit: 100,
-  window: 60,
-});
-
+const result = await rateLimit({ key: 'user:123', limit: 100, window: 60 });
 if (!result.allowed) {
-  return error(429, 'Too many requests');
+  // 429
 }
 ```
 
-`window` is in **seconds** (for example, `window: 60` = 1 minute).
+## Express Example with Retry Header
 
-**For Express.js (automatic IP rate limiting):**
-
-```typescript
+```ts
 import express from 'express';
 import { rateLimit } from '@limity/node';
 
 const app = express();
-app.use(rateLimit()); // Automatic IP-based rate limiting
+
+app.use(rateLimit({ limit: 100, window: 60 }));
+app.get('/api', (_req, res) => res.json({ ok: true }));
 
 app.listen(3000);
 ```
 
-**For edge functions (Vercel, Cloudflare, etc):**
+`@limity/node` sets:
+- `X-RateLimit-Limit`
+- `X-RateLimit-Remaining`
+- `X-RateLimit-Reset`
+- `Retry-After` when blocked
 
-```typescript
-import { checkRateLimit } from '@limity/edge';
+## Algorithm
 
-export default async function handler(req: Request) {
-  const result = await checkRateLimit(req, {
-    limit: 100,
-    window: 60,
-  });
+Current default algorithm is **fixed-window counter**.
 
-  if (!result.allowed) {
-    return new Response('Too many requests', { status: 429 });
-  }
+See detailed behavior and tradeoffs in [docs/ALGORITHMS.md](./docs/ALGORITHMS.md).
 
-  return new Response('Hello!');
-}
-```
+## Production Examples
 
-### Python
+- [examples/express-app](./examples/express-app)
+- [examples/fastify-app](./examples/fastify-app)
+- [examples/nextjs-app](./examples/nextjs-app)
+- [examples/fastapi-app](./examples/fastapi-app)
+- [examples/flask-app](./examples/flask-app)
+- [examples/django-app](./examples/django-app)
 
-```python
-from limity import rate_limit
+## Project Docs
 
-result = rate_limit(
-  key='user:123',
-  limit=100,
-  window=60,
-)
+- [CHANGELOG.md](./CHANGELOG.md)
+- [ROADMAP.md](./ROADMAP.md)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [PUBLISHING.md](./PUBLISHING.md)
+- [USING.md](./USING.md)
 
-if not result.allowed:
-  return error(429, 'Too many requests')
-```
-
-`window` is in **seconds** here as well.
-
-Both support **memory mode** (default) and **hosted mode** (with API key).
-
-Default: 100 requests per 60 seconds per IP.
-All `window` values across SDKs are in **seconds**.
-
-## 🔌 Environment Variables
-
-- `LIMITY_API_KEY` - Optional. Enables hosted rate limiting
-
-## 📊 Response Format
-
-```typescript
-{
-  allowed: boolean;      // Whether the request is allowed
-  remaining: number;     // Requests remaining in window
-  reset: number;         // Unix timestamp when window resets
-}
-```
-
-## 📚 Documentation
-
-- **[USING.md](./USING.md)** - How to use Limity in your projects
-- **[PUBLISHING.md](./PUBLISHING.md)** - How to publish packages
-
-## 📝 License
+## License
 
 MIT

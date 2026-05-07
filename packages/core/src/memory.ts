@@ -51,3 +51,7 @@ export async function memoryLimiter(
     reset,
   };
 }
+
+export function __resetMemoryStoreForTests(): void {
+  memoryStore.clear();
+}

@@ -1,6 +1,6 @@
 {
   "name": "@limity/edge",
-  "version": "0.1.3",
+  "version": "0.3.0",
   "description": "Serverless and edge runtime rate limiting helper",
   "license": "MIT",
   "author": "Limity Contributors",
@@ -30,7 +30,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "test": "node -e \"console.log(\"No package tests yet for @limity/edge\")\""
   },
   "dependencies": {
     "@limity/core": "workspace:*"

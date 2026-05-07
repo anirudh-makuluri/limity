@@ -40,14 +40,16 @@ export function rateLimit(config: RateLimitConfig = {}) {
 
       if (!result.allowed) {
         const status = 429;
+        const retryAfterSeconds = Math.max(0, result.reset - Math.floor(Date.now() / 1000));
         res.status(status);
+        res.set('Retry-After', retryAfterSeconds.toString());
 
         if (onLimitExceeded) {
           onLimitExceeded(req, res, result);
         } else {
           res.json({
             error: 'Too many requests',
-            retryAfter: result.reset - Math.floor(Date.now() / 1000),
+            retryAfter: retryAfterSeconds,
           });
         }
         return;
