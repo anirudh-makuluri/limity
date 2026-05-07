@@ -2,6 +2,19 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 
+function getEmailRedirectUrl(): string {
+  const configured = import.meta.env.VITE_AUTH_REDIRECT_URL
+  if (configured && configured.trim().length > 0) {
+    return configured.trim()
+  }
+
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}/auth`
+  }
+
+  return 'http://localhost:5173/auth'
+}
+
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -42,7 +55,13 @@ export function useAuth() {
   }, [])
 
   const signUpWithPassword = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: getEmailRedirectUrl(),
+      },
+    })
     if (error) throw error
   }, [])
 

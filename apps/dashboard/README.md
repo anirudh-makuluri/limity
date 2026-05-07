@@ -23,9 +23,11 @@ pnpm install
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_API_URL=http://localhost:8080
+VITE_AUTH_REDIRECT_URL=https://your-dashboard-domain.com/auth
 ```
 
 3. In Supabase Auth settings, enable Email/Password provider.
+Also add your redirect URL to Supabase Auth -> URL Configuration -> Redirect URLs.
 
 4. Run:
 
