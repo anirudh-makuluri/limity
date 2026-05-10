@@ -1,6 +1,7 @@
 {
   "name": "limity",
   "version": "0.3.0",
+  "packageManager": "pnpm@10.33.2",
   "private": true,
   "description": "Developer-first rate limiting tool",
   "scripts": {
